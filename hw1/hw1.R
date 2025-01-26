@@ -90,8 +90,8 @@ qqnorm(y2, main="ys without outlier"); qqline(y2)
 pnorm(-1) + pnorm(1, lower.tail=FALSE)
 N <- function(j) dnorm(j)
 curve(N, from = -4, to = 4)
-colorArea(from=-4, to=-1, dnorm, col=0, dens=20) #P(Z < -1)
-colorArea(from=1, to=4, dnorm, col=0, dens=20) #P(Z > 1)
+colorArea(from=-4, to=-1, dnorm, col=6, dens=20) #P(Z < -1)
+colorArea(from=1, to=4, dnorm, col=6, dens=20) #P(Z > 1)
 
 #' $P(|Z| < 2)=$
 pnorm(-2) + pnorm(2, lower.tail=FALSE)
@@ -136,7 +136,7 @@ colorArea(from = qnorm(0.1/2), to = qnorm(1 - 0.1/2), dnorm, col=5, dens=20)
 #' 
 #' # 4
 #' ## i
-#' $\sum_{i=1}^n (x_i - \bar{x}) = \sum_{i=1}^n (x_i) - \sum_{i=1}^n (\bar{x}) = \sum_{i=1}^n (x_i) - n\bar{x}$ (because $n$ is constant)
+#' $\sum_{i=1}^n (x_i - \bar{x}) = \sum_{i=1}^n (x_i) - \sum_{i=1}^n (\bar{x}) = \sum_{i=1}^n (x_i) - n\bar{x}$ (because $n$ is constant).
 #' 
 #' $\bar{x} = \frac{\sum_{i=1}^n x_i}{n} \implies \sum_{i=1}^n x_i = n\bar{x} \implies \sum_{i=1}^n (x_i) - n\bar{x} = n\bar{x} - n\bar{x} = 0$.
 #' 
@@ -158,7 +158,7 @@ colorArea(from = qnorm(0.1/2), to = qnorm(1 - 0.1/2), dnorm, col=5, dens=20)
 #' 
 #' $(\sum_{i=1}^n x_i)^2 = \sum_{i=1}^n x_i^2 + 2 \sum_{1\leq i <j \leq n} x_ix_j \implies _{}$
 #' 
-#' $\frac{1}{n}(\sum_{i=1}^n x_i)^2 = \frac{1}{n}\sum_{i=1}^n x_i^2 + \frac{2}{n}\sum_{1\leq i < \leq n} x_ix_j \implies$
+#' $\frac{1}{n}(\sum_{i=1}^n x_i)^2 = \frac{1}{n}\sum_{i=1}^n x_i^2 + \frac{2}{n}\sum_{1\leq i < j \leq n} x_ix_j \implies$
 #' $\frac{1}{n}(\sum_{i=1}^n x_i)^2 \leq \frac{1}{n}\sum_{i=1}^n x_i^2 \leq \sum_{i=1}^n x_i^2 \implies$
 #' 
 #' $\frac{1}{n}(\sum_{i=1}^n x_i)^2 \leq \sum_{i=1}^n x_i^2.$
