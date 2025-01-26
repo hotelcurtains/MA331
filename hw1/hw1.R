@@ -1,8 +1,10 @@
 #' ---
-#' title: "hw1"
+#' title: "Homework 1"
+#' author: "Daniel Detore"
 #' output: pdf_document
 #' ---
 
+#+ echo=FALSE
 knitr::opts_chunk$set(fig.width = 5, fig.height = 3.5, fig.align = "center")
 colorArea <- function(from, to, density, ..., col="blue", dens=NULL){
     y_seq <- seq(from, to, length.out=500)
@@ -131,3 +133,41 @@ colorArea(from = qnorm(0.1/2), to = qnorm(1 - 0.1/2), dnorm, col=5, dens=20)
 #' 
 #' - $P(F^{-1}(\alpha/2) \leq X \leq F^{-1}(1-\alpha/2)) = P(X \leq F^{-1}(1-\alpha/2)) - P(X \leq F^{-1}(\alpha/2)) = 1-\alpha/2 - \alpha/2 = 1 - \alpha$. 
 #'      - This probability will increase with a decrease in $\alpha$.
+#' 
+#' # 4
+#' ## i
+#' $\sum_{i=1}^n (x_i - \bar{x}) = \sum_{i=1}^n (x_i) - \sum_{i=1}^n (\bar{x}) = \sum_{i=1}^n (x_i) - n\bar{x}$ (because $n$ is constant)
+#' 
+#' $\bar{x} = \frac{\sum_{i=1}^n x_i}{n} \implies \sum_{i=1}^n x_i = n\bar{x} \implies \sum_{i=1}^n (x_i) - n\bar{x} = n\bar{x} - n\bar{x} = 0$.
+#' 
+#' $\square$
+#' 
+#' ## ii
+#' If $n=2$, then $(\sum_{i=1}^n x_i)^2 = (x_1 + x_2)^2 = x_1^2 + x_2^2 + 2x_1x_2 = \sum_{i=1}^2 x_i^2 + 2 \sum_{1\leq i < j \leq 2} x_ix_j$.
+#' 
+#' If $n=3$, then $(\sum_{i=1}^n x_i)^2 = (x_1 + x_2 + x_3)^2 = x_1^2 + x_2^2 + x_3^2 + 2x_1x_2 + 2x_1x_3 + 2x_2x_3 = \sum_{i=1}^3 x_i^2 + 2 \sum_{1\leq i < j \leq 3} x_ix_j$.
+#' 
+#' We can generalize $\sum_{i=1}^2 x_i + 2 \sum_{1\leq i < j \leq 2} x_ix_j$ and $\sum_{i=1}^3 x_i + 2 \sum_{1\leq i < j \leq 3} x_ix_j$ to the form 
+#' 
+#' $\sum_{i=1}^n x_i^2 + 2 \sum_{1\leq i < j \leq n} x_ix_j$.
+#' 
+#' $\square$
+#' 
+#' ## iii
+#' Note that by convention $n \geq 1$.
+#' 
+#' $(\sum_{i=1}^n x_i)^2 = \sum_{i=1}^n x_i^2 + 2 \sum_{1\leq i <j \leq n} x_ix_j \implies _{}$
+#' 
+#' $\frac{1}{n}(\sum_{i=1}^n x_i)^2 = \frac{1}{n}\sum_{i=1}^n x_i^2 + \frac{2}{n}\sum_{1\leq i < \leq n} x_ix_j \implies$
+#' $\frac{1}{n}(\sum_{i=1}^n x_i)^2 \leq \frac{1}{n}\sum_{i=1}^n x_i^2 \leq \sum_{i=1}^n x_i^2 \implies$
+#' 
+#' $\frac{1}{n}(\sum_{i=1}^n x_i)^2 \leq \sum_{i=1}^n x_i^2.$
+#' 
+#' $\square$
+#' 
+#' ## iv
+#' $\sum_{i=1}^n (x_i - \bar{x})^2 = \sum_{i=1}^n(x_i^2 + \bar{x}^2 - 2x_i\bar{x}) = \sum_{i=1}^n x_i^2 + \sum_{i=1}^n \bar{x}^2 - \sum_{i=1}^n 2x_i\bar{x} = \sum_{i=1}^n x_i^2 + n\bar{x}^2 - 2\bar{x}\sum_{i=1}^n x_i$
+#' 
+#' Recall $\sum_{i=1}^n x_i = n\bar{x} \implies \sum_{i=1}^n x_i^2 + n\bar{x}^2 - 2\bar{x}\sum_{i=1}^n x_i = \sum_{i=1}^n x_i^2 + n\bar{x}^2 - 2n\bar{x}^2 = \sum_{i=1}^n x_i^2 - n\bar{x}^2$.
+#' 
+#' $\square$
