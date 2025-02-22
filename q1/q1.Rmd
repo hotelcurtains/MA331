@@ -1,0 +1,91 @@
+---
+title: "Quiz 1"
+author: "Daniel Detore"
+output: pdf_document
+---
+```{r}
+srs <- c(70, 77, 68, 69, 84, 80, 75, 65, 76, 78, 82, 90, 59, 74, 71)
+```
+# Problem 1
+```{r}
+summary(srs)
+boxplot(srs, horizontal=TRUE, main="X samples boxplot")
+```
+
+# Problem 2
+```{r}
+var(srs)
+sd(srs)
+IQR(srs)
+```
+Based on the box plot and summary from Problem 1, the data is skewed left as the mean is slightly smaller than the median.
+
+# Problem 3
+## i
+
+Based on the SRS, $r=8$.
+
+### Accurately
+$X \sim N(76,28) \implies p=P(X\leq 75) = pnorm(75,76,sqrt(28))$
+```{r}
+p <- pnorm(75,76,sqrt(28))
+p
+```
+
+$N \sim B(n,p) \implies P(N < r) = pbinom(75,p)$
+
+### Approximately
+We can use the LaPlace theorem to approximate
+$P(N < r) \approx pnorm((r-np)/sqrt(np(1-np)), 0 ,1)$
+
+
+## ii
+According to the fundamental theorem (i) $\bar{X} \sim N(\mu,\sigma^2/n) \implies \bar{X}\sim N(76,\frac{28}{11})$.
+
+$P(|\bar{X}| > |\bar{x}|) = P(\bar{X} < -|\bar{x}|) + 1 - P(\bar{X} < |\bar{x}|)$
+$= pnorm(-|\bar{x}|,\mu,\sigma/sqrt(n)) + 1 -pnorm(|\bar{x}|,\mu,\sigma/sqrt(n))$.
+
+```{r}
+pnorm(-74.53, 76, 28/sqrt(11)) + 1 -pnorm(74.53, 76, 28/sqrt(11))
+```
+
+## iii
+$\frac{X_i-\mu}{\sigma} \sim N(0,1)$
+
+$\implies \frac{(X_i-\mu)^2}{\sigma^2} \sim \chi^2_n$
+
+and recall all observations are independent
+
+$\implies T_1 \sim \chi^2_{11}$
+
+Which means $P(T_1 < t_1) = pchisq(t_1, 11)$.
+
+## iv
+$\frac{(X_i-\bar{X})^2}{\sigma^2} = \frac{(n-1)S^2}{\sigma^2} \sim \chi^2_{n-1=10}$
+
+Which means $P(T_2 < t_2) = 1 - pchisq(t_2, 10)$.
+
+## v
+$T_3$ is of the form $\frac{N(0,1)}{\sqrt{\chi^2_n/n}} \implies T_3 \sim \mathcal{T}_{n-1}$.
+
+Which means $P(T_3 > t_3) = 1- pt(t_3, n-1)$
+
+# Problem 4
+## i
+$\mu = -2(0) + 4(1) + 2(-2) - 3(3) = -9$
+
+$\sigma^2 = (-2)^2(9) + 4^2(4) + 2^2(25) + (-3)^2(16) = 344$
+
+$-2U + 4V + 2X -3Y \sim N(-9, 344)$
+
+## ii
+Each summand is of the form $(\frac{X_i-\mu}{\sigma})^2$ where $\frac{X_i-\mu}{\sigma} \sim N(0,1)$
+
+This means we can rewrite it as $\chi^2_1 * 4 \sim \chi^2_4$.
+
+## iii
+The radicand is of the form $\chi^2_n/n$ and the entire statistic is of the form $N(0,1)/\sqrt{\chi^2_n/n} \sim \mathcal{T}_{n-1}$. 
+Because the radicand follows $\chi^2_3/3$, the statistic follows $\mathcal{T}_{3}$.
+
+# iv
+The numerator follows $\frac{\chi^2_n/n}{\chi^2_m/m}$ where $n=m=2$, which means the statistic follows $\mathcal{F}_{2,2}.$
