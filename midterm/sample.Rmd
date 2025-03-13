@@ -1,0 +1,122 @@
+---
+title: "Midterm"
+author: "Daniel Detore"
+date: "March 13, 2025"
+output: pdf_document
+---
+
+```{r}
+library(readxl)
+GpaGender <- read_excel("GpaGender.xls")
+GPA <- GpaGender$GPA; GPA
+n <- length(GPA); n
+alpha <- 0.05
+```
+
+# Problem 1
+```{r}
+B_GPA <- ifelse(GPA > 7, 1, 0); B_GPA
+phat <- sum(B_GPA)/length(B_GPA); phat
+p0 <- 0.30
+```
+$H_0: p = 0.30$ with null distribution $N(0,1)$
+
+$H_a: p > 0.30$
+
+We are testing one population proportion, so we use observation $z$ of $Z$ given by:
+```{r}
+z <- sqrt(n)*(phat - p0) / sqrt(p0 * (1 - p0)); z
+```
+which makes the p-value for the left-tail test:
+```{r}
+pnorm(z)
+```
+which is greater than our $\alpha = 0.05$. We cannot disprove $H_0$.
+
+Using the R function:
+```{r}
+prop.test(sum(B_GPA), length(B_GPA), p = p0, alternative = c("less"), correct = FALSE)
+```
+Where $p = 1 > \alpha = 0.05$. We cannot disprove $H_0$.
+
+# Problem 2
+```{r}
+M_GPA <- GpaGender[which(GpaGender$Gender == 2), "GPA"]; M_GPA
+F_GPA <- GpaGender[which(GpaGender$Gender == 1), "GPA"]; F_GPA
+
+# Male summary:
+summary(M_GPA)
+# Female summary:
+summary(F_GPA)
+```
+
+# Problem 3
+```{r}
+both_GPA <- c(M_GPA, F_GPA); both_GPA
+boxplot(both_GPA, names = c("male", "female"), horizontal = TRUE)
+```
+
+# Problem 4
+```{r}
+t.test(M_GPA, conf.level = 0.9)
+t.test(F_GPA, conf.level = 0.9)
+```
+90% Confidence interval for males is $[6.713815, 7.849462]$; for females it is $[7.171981, 8.221116]$.
+
+# Problem 5
+```{r}
+M_GPA <- GpaGender[which(GpaGender$Gender == 2), "GPA"]$GPA; M_GPA
+F_GPA <- GpaGender[which(GpaGender$Gender == 1), "GPA"]$GPA; F_GPA
+```
+$H_0: \sigma^2_M = \sigma^2_F$ where $H_0 \sim F_{n_M-1,\ n_F-1} \equiv F_{46,\ 30}$
+
+Let's check our sample variances:
+
+```{r}
+SSM <- var(M_GPA); SSM
+SSF <- var(F_GPA); SSF
+```
+
+Since $S_M^2 > S_F^2$, $H_a: \sigma^2_M > \sigma^2_F$
+
+Our observed $F = f =$
+```{r}
+f <- SSM/SSF; f
+```
+and gives us p-value
+```{r}
+1 - pf(f, length(M_GPA) - 1, length(F_GPA) - 1)
+```
+which is less than $\alpha = 0.05$. We can reject $H_0$ and assume $\sigma^2_M > \sigma^2_F$.
+Using the R function:
+```{r}
+var.test(M_GPA, F_GPA, ratio = 1, alternative = c("greater"), conf.level = 1 - alpha)
+```
+
+# Problem 6
+We know $\sigma^2_M \neq \sigma^2_F$ and we know neither value. So we will do a general two-sample T-test.
+
+$H_0: \mu_M = \mu_F$
+
+$H_a: \mu_M \neq \mu_F$
+
+We calculate our observed $T = t$ where
+```{r}
+xbar <- mean(M_GPA); xbar
+ybar <- mean(F_GPA); ybar
+n1 <- length(M_GPA); n1
+n2 <- length(F_GPA); n2
+t <- (xbar - ybar)/sqrt(SSM/n1 + SSF/n2); t
+```
+and get a p-value with
+```{r}
+k <- (SSM/n1+SSF/n2)^2/((SSM/n1)^2/(n1-1)+(SSF/n2)^2/(n2-1))
+k <- ceiling(k); k
+2 * pt(-abs(t), k)
+```
+which is greater than 0.05, so we cannot reject $H_0$, so $\mu_M = \mu_F$.
+
+Using the R function:
+```{r}
+t.test(M_GPA, F_GPA, alternative = c("two.sided"), paired = FALSE, var.equal = FALSE)
+```

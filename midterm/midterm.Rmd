@@ -1,0 +1,138 @@
+---
+title: "Midterm, MA 331-B"
+author: "Daniel Detore"
+date: "March 13, 2025"
+output: pdf_document
+---
+
+
+# Problem 1
+```{r}
+library(readxl)
+GpaGender <- read_excel("GpaGender.xls")
+M_SC <- GpaGender[which(GpaGender$Gender == 2), "SelfConcept"]; M_SC
+F_SC <- GpaGender[which(GpaGender$Gender == 1), "SelfConcept"]; F_SC
+
+# Male summary:
+summary(M_SC)
+# Female summary:
+summary(F_SC)
+```
+
+# Problem 2
+```{r}
+both_SC <- c(M_SC, F_SC); both_SC
+boxplot(both_SC, names = c("male", "female"), horizontal = TRUE)
+```
+Yes, their means (from Problem 1) are similar and, because of their interquantile ranges, they probably have similar variances.
+
+# Problem 3
+Male interval is $[54.31379, 61.51600]$ according to R:
+```{r}
+t.test(M_SC, conf.level = 0.95)
+```
+
+Female interval is $[50.85916, 60.17310]$:
+```{r}
+t.test(F_SC, conf.level = 0.95)
+```
+
+# Problem 4
+```{r}
+M_SC <- M_SC$SelfConcept
+F_SC <- F_SC$SelfConcept
+nm <- length(M_SC); nm
+nf <- length(F_SC); nf
+```
+We assume $H_0: S_M^2 = S_F^2$, with null distribution $F_{n_M -1,\ n_F -1} \equiv F_{46, 30}$. For $H_a$, we check the sample variances:
+```{r}
+SSM <- var(M_SC); SSM
+SSF <- var(F_SC); SSF
+```
+Since $S_M^2 < S_F^2$, $H_a: \sigma^2_M < \sigma^2_F$.
+Our observed test statistic F is
+```{r}
+f <- SSM/SSF; f
+```
+which, when we do a left-tail test, gives
+```{r}
+pf(f, nm - 1, nf - 1)
+```
+which is greater than our $\alpha = 0.1$, therefore we cannot reject $H_0$ and must assume $S_M^2 = S_F^2$. We could use the R function for the same result:
+```{r}
+var.test(M_SC, F_SC, ratio = 1, alternative = c("less"), conf.level = 1 - 0.1)
+```
+We can get confidence interval $[0.000000, 1.593047]$ by
+```{r}
+var.test(M_SC, F_SC, ratio = 1, alternative = c("less"), conf.level = 0.95)
+```
+
+
+# Problem 5
+We found that $S_M^2 = S_F^2$, but we don't know their values, so we will do a two-sample T-test with equal variances. This means we have $H_0: \mu_M = \mu_F$, $H_a: \mu_M \neq \mu_F$, null distribution $T_{n_M + n_F - 2} \equiv T_{76}$, and our observed test statistic $t =$
+```{r}
+mbar <- mean(M_SC); mbar
+fbar <- mean(F_SC); fbar
+SSP <- (((nm - 1)*SSM) + ((nf - 1)*SSF)) / (nm+nf-2); SSP
+t <- (mbar - fbar) / sqrt(SSP * ((1/nm) + (1/nf))); t
+```
+which gives us two-tail significance level
+```{r}
+2*pt(-abs(t), nm + nf - 2)
+```
+which is greater than our $\alpha = 0.1$, therefore we cannot reject $H_0$ and must assume $\mu_M = \mu_F$. We could use the R function for the same result:
+```{r}
+t.test(M_SC, F_SC, alternative = c("two.sided"), paired = FALSE, var.equal = TRUE, 
+conf.level = 1 - 0.1)
+```
+We can get confidence interval $[-3.332460,  8.129989]$ by 
+```{r}
+t.test(M_SC, F_SC, alternative = c("two.sided"), paired = FALSE, var.equal = TRUE, 
+conf.level = 0.95)
+```
+
+# Problem 6
+```{r}
+SC <- GpaGender$SelfConcept; SC
+B_SC <- ifelse(SC > 52, 1, 0); B_SC
+N <- sum(B_SC); N
+n <- length(B_SC); n
+phat <- N/n; phat
+p0 <- .47
+```
+We know $H_0: p = .47$, $H_a: p > .47$, and our null distribution $N(0,1)$. Our testing statistic and right-tail p-value are given as such:
+```{r}
+z <- sqrt(n) * (phat- p0) / sqrt(p0 * (1 - p0)); z
+1 - pnorm(z)
+```
+Since the p-value is less than our $\alpha = 0.1$, we can reject $H_0$ and assume $p > .47$. 
+
+We get our confidence interval $[0.6144804, 1.0000000]$ by
+```{r}
+prop.test(N, n, p = p0, alternative = c("greater"), correct = FALSE, conf.level = .95)
+```
+
+# Problem 7
+```{r}
+BM <- ifelse(M_SC > 52, 1, 0); BM
+BF <- ifelse(F_SC > 52, 1, 0); BF
+
+Nm <- sum(BM); Nm
+Nf <- sum(BF); Nf
+nm <- length(BM); nm
+nf <- length(BF); nf
+phat <- (Nm + Nf) / (nm + nf); phat
+```
+We know $H_0: p_M = p_F$, $H_a: p_M \neq p_F$, and null distribution $N(0,1)$. Our testing statistic and two-tail p-value are given as such:
+```{r}
+z <- (Nm/nm - Nf/nf) / sqrt(phat * (1 - phat) * (1/nm + 1/nf)); z
+2 * pnorm(-abs(z))
+```
+which is greater than our $\alpha = 0.1$, therefore we cannot reject $H_0$ and must assume $p_M = p_F$. We could use the R function for the same result:
+```{r}
+prop.test(c(Nm, Nf), c(nm, nf), alternative = c("two.sided"), correct = FALSE, conf.level = 1-0.1)
+```
+We can find the confidence interval $[ -0.2647662,  0.1425974]$ by 
+```{r}
+prop.test(c(Nm, Nf), c(nm, nf), alternative = c("two.sided"), correct = FALSE, conf.level = .95)
+```
