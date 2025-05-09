@@ -1,0 +1,199 @@
+---
+title: "Homework 8"
+author: "Daniel Detore, Emma Erdtmann"
+output: pdf_document
+---
+I pledge my honor that I have abided by the Stevens Honor System.
+
+# 1
+To find the least squares equation, we need to find the SSE. We can measure the residuals as $e_i = y_i - (\beta + \beta_1x_i)$ with $i = 1, \dots, n$.
+If we know $SSE = \sum_{i=1}^n e_i^2$ then $SSE = \sum_{i=1}^n(y_i-(\beta_0+\beta_1x_i))^2$.
+If we set $\frac{\partial}{\partial\beta_j}SSE=0$ for $j=0,1$, we can get the normal equations
+$$
+\begin{cases} 
+\begin{split} 
+    1 \cdot \beta_0 + \frac1n \sum_{i=1}^n x_i + \beta_1 &= \frac1n \sum_{i=1}^n y_i \\
+    \frac1n \sum_{i=1}^n x_i \cdot \beta_0 + \frac1n \sum_{i=1}^n x_i + \beta_1 &= \frac1n \sum_{i=1}^n x_iy_i
+\end{split}
+\end{cases}
+$$
+
+# 2
+We can use the equation from number 1 to get the Hassian matrix
+$$
+\begin{pmatrix}
+\frac{\partial^2}{\partial\beta_0^2}SSE & \frac{\partial^2}{\partial\beta_0\partial\beta_1}SSE \\
+\frac{\partial^2}{\partial\beta_0\partial\beta_1}SSE & \frac{\partial^2}{\partial\beta_1^2}SSE
+\end{pmatrix}
+=
+\begin{pmatrix}
+n & \sum_{i=1}^nx_i \\
+\sum_{i=1}^nx_i & \sum_{i=1}^nx_i^2
+\end{pmatrix}
+$$
+The Hassian matrix is positive definitive whenever all $x_i$s are non-zero.
+
+# 3
+$$
+Y=\tilde X \alpha + \varepsilon \implies \\
+\begin{pmatrix}
+y_1 \\
+\vdots \\
+y_n \\
+\end{pmatrix}
+=
+\begin{pmatrix}
+1 & x_1 - \bar x \\
+\vdots & \vdots \\
+1 & x_n - \bar x
+\end{pmatrix}
+\begin{pmatrix}
+\alpha_0 \\
+\alpha_1
+\end{pmatrix}
++
+\begin{pmatrix}
+\varepsilon_0 \\
+\vdots \\
+\varepsilon_n \\
+\end{pmatrix}
+$$
+
+# 4
+Using the equation from problem 3:
+$$
+(\tilde X' \tilde X)^{-1} = \frac{1}{|\tilde X' \tilde X|}(\tilde X' \tilde X)^*
+= \frac{1}{n\sum_{i=1}^n (x_i^2 - \bar x^2) - (\sum_{i=1}^nx_i - \bar x)^2}
+\begin{pmatrix}
+\sum_{i=1}^n x_i^2 - \bar x^2 & - \sum_{i=1}^n x_i - \bar x \\
+- \sum_{i=1}^n x_i - \bar x & n
+\end{pmatrix}
+$$
+and:
+$$
+\tilde X' Y =
+\begin{pmatrix}
+\sum_{i=1}^n y_i \\
+\sum_{i=1}^n (x_i-\bar x)y_i \\
+\end{pmatrix}
+$$
+which lets us calculate:
+$$
+\hat\alpha = (\tilde X' \tilde X)^{-1}\tilde X Y = \\
+\begin{cases} 
+    \bar y - \hat\alpha_1 \bar x \\
+    \frac{\frac1n \sum_{i=1}^n (x_i - \bar x)y_i - \frac1n \sum_{i=1}^n (x_i - \bar x) \cdot \frac1n \sum_{i=1}^n y_i}
+    {\frac1n \sum_{i=1}^n (x_i - \bar x)^2 - (\frac1n \sum_{i=1}^n (x_i - \bar x))^2} 
+\end{cases}
+$$
+
+# 5
+```{r}
+X <- c(1.41,1.50,1.53,1.55,1.57,1.60,1.62,1.65,1.68,1.71,1.73,1.76,1.78,1.80,1.82)
+Y <- c(52.2,53.1,54.5,55.8,57.2,58.6,59.6,61.2,62.1,64.5,66.3,68.2,69.8,72.2,74.6)
+n <- length(X)
+Xbar <- X-mean(X)
+a_1n <- ((1/n) * sum(Xbar * Y)) - ((1/n) * sum(Xbar)) * ((1/n) * sum(Y))
+a_1d <- ((1/n) * sum(Xbar^2)) - ((1/n) * sum(Xbar))^2
+a_1 <- a_1n / a_1d; a_1
+a_0 <- mean(Y) - (a_1 * mean(Xbar)); a_0
+sprintf('Our equation is: Y = %fX + %f', a_1, a_0)
+```
+
+# 6
+## i
+$$
+Y= X \beta + \varepsilon \implies \\
+\begin{pmatrix}
+y_1 \\
+\vdots \\
+y_n \\
+\end{pmatrix}
+=
+\begin{pmatrix}
+1 & x_1 \\
+\vdots & \vdots \\
+1 & x_n
+\end{pmatrix}
+\begin{pmatrix}
+\beta_0 \\
+\beta_1
+\end{pmatrix}
++
+\begin{pmatrix}
+\varepsilon_0 \\
+\vdots \\
+\varepsilon_n \\
+\end{pmatrix}
+$$
+
+```{r}
+b_1n <- ((1/n) * sum(X * Y)) - ((1/n) * sum(X)) * ((1/n) * sum(Y))
+b_1d <- ((1/n) * sum(X^2)) - ((1/n) * sum(X))^2
+b_1 <- b_1n / b_1d
+b_0 <- mean(Y) - (b_1 * mean(X))
+sprintf('Our equation is: Y = %fX + %f', b_1, b_0)
+```
+
+## ii
+If we compare the equation from 6.i ($Y = 56.925123X + -31.781320$) to the equation from 5 ($Y = 56.925123X + 61.993333$) we find that the slope $\hat\alpha_1 = \hat\beta_1$, but the intercepts $\hat\alpha_0 \neq \hat\alpha_1$. This is because centralizing $X$ as we did in 5 preserves the relationship between $X$ and $Y$, except it moves all of the points down by the mean of $X$.
+
+# 7
+```{r}
+plot(Xbar, Y, main="Xbar vs. Y")
+abline(a = a_0, b = a_1, col="red")
+```
+
+# 8
+According to slide deck 8, page 28, the CI of slope $\hat\alpha_1$ is
+$$
+\begin{aligned}
+CI = & \hat\alpha_1 \pm t_{1-\alpha/2}(n-2)*SE_{\hat\beta_1} \\
+\text{where }& 
+SE_{\hat\alpha_0} = \sqrt{\frac1{\sum_{i=1}^n (x_i-\bar x)^2} S^2}\\
+\text{where }& 
+S^2 = \frac1{n-2}\sum_{i=1}^n (y_i - \hat y_i)^2
+\end{aligned}
+$$
+```{r}
+SS <- sum((Y - (b_1*X + b_0))^2)/(n-2)
+SE <- sqrt(SS / (sum((X-mean(X))^2)))
+cl <- 0.925
+sprintf('Our confidence interval is: [%f, %f]', 
+    b_1 - qt(1 - (cl/2), n-2) * SE, 
+    b_1 + qt(1 - (cl/2), n-2) * SE)
+```
+
+# 9
+We have $H_0: \beta_1=0$ vs. $H_a: \beta_1 \neq 0$. 
+According to slide deck 8, page 31,
+$$
+P_{H_0}(|T|>|t|) 2[1-\texttt{pt}(|t|,n-2)] < \alpha 
+$$
+with
+$T = \frac{\hat\beta_1}{SE_{\hat\beta_1}} \sim T_{n-2}$ observed at $t$ from data.
+```{r}
+t = b_1/SE; t
+p = 2 * (1 - pt(abs(t), n-2)); p
+```
+Our p-value is smaller than all common p-values so we may reasonably reject $H_0$.
+
+# 10
+According to slide deck 8, page 38,
+$$
+SE_{\hat Y^*} = \sqrt{1+ \frac1n + \frac{(x^* - \bar x)^2}
+{\sum_{i=1}^n (x_1- \bar x)^2}S^2}
+$$
+where $S^2$ is the same as in 8.
+The prediction interval, according to page 39, is estimated as
+$$
+\hat \beta_0 + \hat\beta_1 x^* \pm t_{1-\alpha/2}(n-2) \cdot SE_{\hat Y^*}.
+$$
+```{r}
+xstar <- 1.85
+cl <- 0.9
+SEY <- sqrt(1 + (1 / n) + ((xstar - mean(X))^2)/(sum((X - mean(X))^2)))
+sprintf('Our prediction interval is: [%f, %f]', 
+    b_0 + (b_1 * xstar) - pt(1 - (cl / 2), n-2) * SEY, 
+    b_0 + (b_1 * xstar) + pt(1 - (cl / 2), n-2) * SEY)
+```
