@@ -1,0 +1,302 @@
+---
+title: "Final, MA 331-B"
+author: "Daniel Detore"
+date: "May 15, 2025"
+output: pdf_document
+---
+I pledge my honor that I have abided by the Stevens Honor System.
+
+# Problem 1
+```{r}
+library(readxl)
+pabmi <- read_excel("pabmi.xls")
+plot(pabmi)
+PA <- pabmi$PA
+BMI <- pabmi$BMI
+n <- length(PA)
+cor(PA, BMI)
+```
+We can check for significance of association between Y and X by testing
+on the slope parameter.
+
+We have $H_0: \beta_1 = 0$ and $H_a: \beta_1 \neq 0$.
+Our testing statistic 
+$t = \frac{\hat\beta_1}{SE_{\hat\beta_1}} \sim T_{n-2 = 77} = -4.16$.
+```{r}
+cor.test(BMI, PA)
+```
+This p-value is very low so we may reject $H_0$ and assume $H_a$.
+Thus X and Y are significantly associated.
+
+# Problem 2
+```{r}
+model <- lm(PA ~ BMI, pabmi);
+sm <- summary(model); sm
+b0 <- sm$coefficients[1, 1]
+b1 <- sm$coefficients[2, 1]
+plot(BMI, resid(model))
+abline(h = 0)
+```
+The residuals have no relation pattern, which shows that this model is a good
+fit for the data.
+```{r}
+qqnorm(resid(model))
+qqline(resid(model))
+```
+Some of the  QQ plot seems to somewhat follow a straight line, 
+which means this model might not be a perfect fit for the data.
+
+# Problem 3
+```{r}
+b0
+b1
+e <- sm$sigma; e
+sprintf('Our regression equation is: Y =  %fX + %f + %f', 
+    b1, b0, e)
+plot(BMI, PA)
+abline(b0 + e, b1, col="red")
+```
+
+# Problem 4
+The CI of the intercept parameter is 
+$\hat\beta_0 \pm t_{1-\alpha/2}(n-2) \times SE_{\hat\beta_0}$.
+```{r}
+cl <- .95
+SEb0 <- sm$coef[1,2]
+MOE <- pt(1 - (cl / 2), n-2) * SEb0; MOE
+sprintf('Our confidence interval is: [%f, %f]', 
+    b0 - MOE, 
+    b0 + MOE)
+```
+
+
+The CI of the slope parameter is 
+$\hat\beta_0 \pm t_{1-\alpha/2}(n-2) \times SE_{\hat\beta_0}$.
+```{r}
+SEb1 <- sm$coef[2,2]
+MOE <- pt(1 - (cl / 2), n-2) * SEb1; MOE
+sprintf('Our confidence interval is: [%f, %f]', 
+    b1 - MOE, 
+    b1 + MOE)
+```
+
+# Problem 5
+To test the significance of slope, we have $H_0: \beta_1 = 0$ vs 
+$H_a: \beta_1 \neq 0$ and we observe test statistic
+$t = \frac{\hat\beta_1}{SE_{\hat\beta_1}} \sim T_{n-2}=$
+```{r}
+t <- b1/SEb1; t
+2 * (1 - pt(abs(t), n-2))
+```
+Since this value is $<0.01$ we can reject $H_0$ and assume $H_a$.
+
+To test the significance of the intercept, we have $H_0: \beta_1 = 0$ vs 
+$H_a: \beta_1 \neq 0$ and we observe test statistic
+$t = \frac{\hat\beta_1}{SE_{\hat\beta_1}} \sim T_{n-2}=$
+```{r}
+t <- b0/SEb0; t
+2 * (1 - pt(abs(t), n-2))
+```
+Since this value is $<0.01$ we can reject $H_0$ and assume $H_a$.
+
+# Problem 6
+Our coefficient of determination $R^2 =$
+```{r}
+RR <- sm$r.squared; RR
+```
+We know 
+$RSE = S = \sqrt\frac{SSE}{n-2} \implies SSE = RSE^2 \times (n-2) =$
+```{r}
+RSE <- sm$sigma
+SSE <- (RSE^2) * (n-2); SSE
+```
+We also know 
+$SST = SSM + SSE$ and 
+$R^2 = \frac{SSM}{SST} \implies SSM = R^2 \times SST$ thus
+$SST = R^2 \times SST + SSE \implies SST - R^2 \times SST = SSE \implies
+SST(1-R^2) = SSE \implies SST = \frac{SSE}{1-R^2} =$
+```{r}
+SST <- SSE / (1 - RR); SST
+```
+thus
+```{r}
+SSM <- SST - SSE; SSM
+```
+
+# Problem 7
+We have $H_0: \beta_1 = 0$ and $H_a: \beta_1 \neq 0$. Our testing statistic 
+$f \sim F_{1,n-2} = \frac{SSM}{SSE/(n-2)} = \frac{SST - SSE}{SSE/(n-2)} =$
+```{r}
+f <- (SST-SSE) / (SSE/(n-2)); f
+# which gives us p-value:
+1 - pf(f, 1, n-2)
+```
+$< 0.01$. Thus we reject $H_0$ and assume $H_a$.
+
+# Problem 8
+We can estimate $Y^*$ as 
+$y^* = \beta_0 + \beta_1 x^*$ 
+(ignoring $\varepsilon^*$ to get expected value).
+When $x^* = 27.55, 31.5$, $y^* =$
+```{r}
+b0 + (27.55 * b1)
+b0 + (31.5 * b1)
+
+SS <- (1 / (n-2)) * sum((PA - mean(PA))^2)
+SEuY <- sqrt((1 / n) + ((27.55 - mean(BMI))^2)/sum((BMI-mean(BMI))^2)*SS)
+MOE <- pt(1 - (cl / 2), n-2) * SEuY; MOE
+sprintf('Our confidence interval for x* = 27.55 is: [%f, %f]', 
+    b0 + b1 * 27.55 - MOE, 
+    b0 + b1 * 27.55 + MOE)
+
+SEuY <- sqrt((1 / n) + ((31.5 - mean(BMI))^2)/sum((BMI-mean(BMI))^2)*SS)
+sprintf('Our confidence interval for x* = 31.5 is: [%f, %f]', 
+    b0 + b1 * 31.5 - MOE, 
+    b0 + b1 * 31.5 + MOE)
+```
+
+# Problem 9
+```{r}
+b0 + (27.55 * b1) + e
+b0 + (31.5 * b1) + e
+
+SEuY <- sqrt(1 + (1 / n) + ((27.55 - (mean(BMI)))^2/sum((BMI-mean(BMI))^2))*SS)
+MOE <- pt(1 - (cl / 2), n-2) * SEuY; MOE
+sprintf('Our prediction interval for x* = 27.55 is: [%f, %f]', 
+    b0 + b1 * 27.55 - MOE, 
+    b0 + b1 * 27.55 + MOE)
+
+SEuY <- sqrt(1 + (1 / n) + ((31.5 - (mean(BMI)))^2/sum((BMI-mean(BMI))^2))*SS)
+MOE <- pt(1 - (cl / 2), n-2) * SEuY; MOE
+sprintf('Our prediction interval for x* = 31.5 is: [%f, %f]', 
+    b0 + b1 * 31.5 - MOE, 
+    b0 + b1 * 31.5 + MOE)
+```
+
+# Problem 10
+```{r}
+nodel <- lm(PA ~ poly(BMI, 2), pabmi)
+sn <- summary(nodel); sn
+a0 <- sn$coefficients[1, 1]
+a1 <- sn$coefficients[2, 1]
+a2 <- sn$coefficients[3, 1]
+sprintf('Our new regression equation is: Y =  %f + %fX1 + %fX2', 
+    a0, a1, a2)
+RRn <- sn$adj.r.squared
+sprintf('We will check adjusted R^2s %f vs %f.', 
+    sm$adj.r.squared, RRn)
+```
+The adjusted $R^2$ of the original model is higher, 
+which makes the original model a better fit to the data.
+
+# Problem 11
+```{r}
+plot(BMI, PA)
+abline(b0, b1, col="red")
+lines(sort(BMI), fitted(nodel)[order(BMI)], col='blue') 
+```
+
+# Problem 12
+$$
+Y = \tilde X \beta + \varepsilon \implies
+\begin{bmatrix}
+y_1 \\ y_2 \\ \vdots \\ y_n
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 & x_1 - \bar x \\ 
+1 & x_2 - \bar x \\ 
+\vdots & \vdots \\ 
+1 & x_n - \bar x \\ 
+\end{bmatrix}
+\begin{bmatrix}
+\beta_1 \\ \beta_2
+\end{bmatrix}
++
+\begin{bmatrix}
+\varepsilon_0 \\ 
+\varepsilon_1 \\ 
+\vdots \\ 
+\varepsilon_n \\ 
+\end{bmatrix}
+$$
+
+# Problem 13
+We know
+$$
+(\tilde X' \tilde X) =
+\begin{bmatrix}
+1 & 1 & \dots & 1 \\
+(x_1 - \bar x) & (x_2 - \bar x) & \dots & (x_n - \bar x)
+\end{bmatrix}
+*
+\begin{bmatrix}
+1 & x_1 - \bar x \\ 
+1 & x_2 - \bar x \\ 
+\vdots & \vdots \\ 
+1 & x_n - \bar x \\ 
+\end{bmatrix}
+=
+\begin{bmatrix}
+n & \sum_{i=1}^n (x_i-\bar x) \\
+\sum_{i=1}^n (x_i-\bar x) & \sum_{i=1}^n (x_i-\bar x)^2
+\end{bmatrix}
+$$
+If we know that $\sum_{i=1}^n (x_i-\bar x) = 0$, this becomes
+$$
+\begin{bmatrix}
+n & 0 \\
+0 & \sum_{i=1}^n (x_i-\bar x)^2
+\end{bmatrix}
+$$
+and if we know the property of the inverse of a diagonally dominant matrix,
+we can find $(\tilde X' \tilde X)^{-1} =$
+$$
+\begin{bmatrix}
+n & 0 \\
+0 & \sum_{i=1}^n (x_i-\bar x)^2
+\end{bmatrix}.
+$$
+
+We can find
+$$
+\tilde X'Y =
+\begin{bmatrix}
+1 & 1 & \dots & 1 \\
+(x_1 - \bar x) & (x_2 - \bar x) & \dots & (x_n - \bar x)
+\end{bmatrix}
+\begin{bmatrix}
+y_1 \\ y_2 \\ \vdots \\ y_n
+\end{bmatrix}
+= 
+\begin{bmatrix}
+\sum_{i=1}^n y_i\\
+\sum_{i=1}^n y_i(x_i - \bar x)
+\end{bmatrix}.
+$$
+
+
+Using these two equations, we can find 
+$\hat\beta = (\tilde X' \tilde X)^{-1}\tilde X' Y =$
+$$
+\begin{bmatrix}
+n & 0 \\
+0 & \sum_{i=1}^n (x_i-\bar x)^2
+\end{bmatrix}
+\begin{bmatrix}
+\sum_{i=1}^n y_i\\
+\sum_{i=1}^n y_i(x_i - \bar x)
+\end{bmatrix}
+=
+\begin{bmatrix}
+\frac{\sum_{i=1}^n y_i}n\\
+\frac{\sum_{i=1}^n y_i(x_i - \bar x)}{\sum_{i=1}^n (x_i-\bar x)^2}
+\end{bmatrix}
+$$
+
+# Problem 14
+## i
+$\hat\beta \sim N(\beta, (\tilde X' \tilde X)^{-1}\tilde X' Y\sigma^2)$.
+
+## ii
+$\mu_{\hat\beta} = \beta$; $\sigma^2_{\hat\beta} = (\tilde X' \tilde X)^{-1}\tilde X' Y\sigma^2$.
